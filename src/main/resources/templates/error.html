@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <title>Error</title>
+    <style>
+        body {
+            font-family: system-ui;
+            margin: 0;
+            background: #f5f7fb;
+        }
+
+        .box {
+            max-width: 700px;
+            margin: 60px auto;
+            background: #fff;
+            border: 1px solid #e3e7ef;
+            border-radius: 12px;
+            padding: 20px;
+        }
+
+        a {
+            color: #2563eb;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .muted {
+            color: #6b7280;
+        }
+
+        .code {
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+        }
+    </style>
+</head>
+<body>
+<div class="box">
+    <h2>Oops</h2>
+
+    <p th:text="${errorMessage} ?: (${status} + ' ' + ${error})">
+        Something went wrong.
+    </p>
+
+    <p class="muted" th:if="${message != null and !#strings.isEmpty(message) and message != 'No message available'}"
+       th:text="${message}">
+        Details...
+    </p>
+
+    <p><a href="/products">Back to Products</a></p>
+</div>
+</body>
+</html>

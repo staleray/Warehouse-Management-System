@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Orders</title>
+    <style>
+        body { font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; margin: 0; background-color: #f5f7fb; }
+        .top-nav { display: flex; align-items: center; justify-content: space-between; padding: 16px 32px; background-color: #ffffff; border-bottom: 1px solid #e3e7ef; }
+        .nav-links { display: flex; gap: 24px; }
+        .nav-links a { text-decoration: none; color: #6b7280; font-weight: 500; }
+        .nav-links a.active { color: #111827; border-bottom: 2px solid #2563eb; padding-bottom: 4px; }
+
+        .page { padding: 24px 32px; }
+        h1 { margin: 0 0 16px 0; font-size: 24px; color: #111827; }
+
+        .cards { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; margin-bottom: 24px; }
+        .card { background-color: #ffffff; border-radius: 12px; padding: 16px 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.06); }
+        .card-title { font-size: 12px; text-transform: uppercase; color: #6b7280; letter-spacing: .08em; margin-bottom: 8px; }
+        .card-value { font-size: 24px; font-weight: 600; color: #111827; }
+        .card-list { list-style: none; padding-left: 0; margin: 0; font-size: 14px; color: #374151; }
+        .card-list li + li { margin-top: 4px; }
+
+        .panel { background-color: #ffffff; border-radius: 12px; padding: 16px 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.06); }
+
+        .table-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+        .table-header h2 { font-size: 16px; margin: 0; }
+        .search-area { display: flex; gap: 8px; align-items: center; }
+        .search-area input { padding: 6px 8px; border-radius: 6px; border: 1px solid #d1d5db; font-size: 14px; }
+        .search-area button { padding: 6px 10px; border-radius: 6px; border: 1px solid #d1d5db; background: #ffffff; font-size: 14px; cursor: pointer; }
+
+        table { width: 100%; border-collapse: collapse; font-size: 14px; }
+        th, td { padding: 8px 8px; text-align: left; }
+        th { color: #6b7280; font-weight: 500; border-bottom: 1px solid #e5e7eb; font-size: 12px; text-transform: uppercase; letter-spacing: .06em; }
+        tbody tr:nth-child(even) { background: #f9fafb; }
+
+        .badge { display: inline-flex; padding: 3px 8px; border-radius: 9999px; font-size: 12px; font-weight: 500; }
+        .badge.new { background: #e0f2fe; color: #0369a1; }
+        .badge.in-progress { background: #fef3c7; color: #92400e; }
+        .badge.shipped { background: #dcfce7; color: #166534; }
+        .badge.cancelled { background: #fee2e2; color: #b91c1c; }
+
+        .btn-primary { padding: 8px 14px; border-radius: 9999px; background: #2563eb; color: black; border: none; cursor: pointer; font-size: 14px; }
+        .btn-primary:hover { background: #1d4ed8; color: white }
+        .link { color: #2563eb; text-decoration: none; font-size: 13px; }
+        .link:hover { text-decoration: underline; }
+    </style>
+</head>
+<body>
+
+<div class="top-nav">
+    <div class="nav-links">
+        <a th:href="@{/products}">Products</a>
+        <a th:href="@{/orders}" class="active">Orders</a>
+        <a th:href="@{/parcels}">Parcels</a>
+    </div>
+</div>
+
+<div class="page">
+    <h1>Orders overview</h1>
+
+    <div class="cards">
+        <div class="card">
+            <div class="card-title">Total orders</div>
+            <div class="card-value" th:text="${totalOrders}">0</div>
+        </div>
+        <div class="card">
+            <div class="card-title">In progress</div>
+            <div class="card-value" th:text="${inProgressOrders}">0</div>
+        </div>
+        <div class="card">
+            <div class="card-title">Shipped</div>
+            <div class="card-value" th:text="${shippedOrders}">0</div>
+        </div>
+    </div>
+
+    <div class="cards" style="grid-template-columns: 2fr 1fr;">
+        <div class="panel">
+            <div class="table-header">
+                <h2>Orders</h2>
+                <div class="search-area">
+                    <input type="text" id="searchInput" placeholder="Search..." oninput="filterOrders()">
+                    <a th:href="@{/orders/new}">
+                        <button type="button" class="btn-primary">Create new order</button>
+                    </a>
+                </div>
+            </div>
+
+            <table id="ordersTable">
+                <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Order number</th>
+                    <th>Status</th>
+                    <th>Created</th>
+                    <th>Actions</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="o : ${orders}">
+                    <td th:text="${o.id}">1</td>
+                    <td th:text="${o.orderNumber}">Order 1</td>
+                    <td>
+                      <span th:switch="${o.status != null ? o.status.name() : 'UNKNOWN'}">
+                          <span th:case="'NEW'" class="badge new">New</span>
+                          <span th:case="'IN_PROGRESS'" class="badge in-progress">In progress</span>
+                          <span th:case="'SHIPPED'" class="badge shipped">Shipped</span>
+                          <span th:case="'CANCELLED'" class="badge cancelled">Cancelled</span>
+                          <span th:case="*" class="badge" th:text="${o.status}">UNKNOWN</span>
+                      </span>
+                    </td>
+                    <td th:text="${o.createdAt != null ? #temporals.format(o.createdAt, 'yyyy-MM-dd HH:mm') : '—'}">2025-01-01</td>
+                    <td>
+                        <a th:href="@{'/orders/' + ${o.id}}" class="link">Details</a>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="panel">
+            <div class="card-title">Recent orders</div>
+            <ul class="card-list">
+                <li th:each="o : ${recentOrders}">
+                    <span th:text="|${o.orderNumber} – ${o.status}|"></span>
+                </li>
+                <li th:if="${#lists.isEmpty(recentOrders)}">No recent orders</li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<script>
+    function filterOrders() {
+        const input = document.getElementById('searchInput');
+        const filter = input.value.toLowerCase();
+        const table = document.getElementById('ordersTable');
+        const trs = table.getElementsByTagName('tr');
+
+        for (let i = 1; i < trs.length; i++) {
+            const tds = trs[i].getElementsByTagName('td');
+            let show = false;
+            for (let j = 0; j < 4; j++) {
+                if (tds[j] && tds[j].innerText.toLowerCase().indexOf(filter) > -1) {
+                    show = true;
+                    break;
+                }
+            }
+            trs[i].style.display = show ? '' : 'none';
+        }
+    }
+</script>
+
+</body>
+</html>

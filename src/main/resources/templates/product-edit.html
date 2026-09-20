@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Edit product</title>
+
+    <style>
+        body{
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            margin: 0;
+            background-color: #f5f7fb;
+            color:#111827;
+        }
+
+        .top-nav{
+            display:flex;
+            align-items:center;
+            justify-content:space-between;
+            padding:16px 32px;
+            background:#ffffff;
+            border-bottom:1px solid #e3e7ef;
+        }
+        .nav-links{ display:flex; gap:24px; }
+        .nav-links a{
+            text-decoration:none;
+            color:#6b7280;
+            font-weight:500;
+            padding-bottom:4px;
+        }
+        .nav-links a.active{
+            color:#111827;
+            border-bottom:2px solid #2563eb;
+        }
+
+        .page{
+            padding:24px 32px;
+            max-width:1200px;
+            margin:0 auto;
+        }
+
+        .page-title{
+            margin: 6px 0 16px;
+            display:flex;
+            align-items:flex-start;
+            justify-content:space-between;
+            gap:16px;
+            flex-wrap:wrap;
+        }
+        h1{
+            margin:0 0 6px 0;
+            font-size:24px;
+            color:#111827;
+        }
+        .sub{
+            margin-top:4px;
+            color:#6b7280;
+            font-size:13px;
+            font-weight:500;
+        }
+        .link{
+            color:#2563eb;
+            text-decoration:none;
+            font-weight:600;
+            font-size:13px;
+        }
+        .link:hover{ text-decoration:underline; }
+
+        .card{
+            background:#ffffff;
+            border-radius:12px;
+            padding:16px 20px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+        }
+        .card-header{
+            display:flex;
+            align-items:center;
+            justify-content:space-between;
+            gap:12px;
+            margin-bottom:10px;
+        }
+        .card-title{
+            font-size:12px;
+            text-transform:uppercase;
+            color:#6b7280;
+            letter-spacing:.08em;
+            font-weight:600;
+            margin:0;
+        }
+
+        .grid{
+            display:grid;
+            grid-template-columns: 1fr 1fr;
+            gap:12px;
+            margin-top:6px;
+        }
+        @media (max-width: 860px){
+            .grid{ grid-template-columns:1fr; }
+        }
+
+        .field label{
+            display:block;
+            font-size:12px;
+            text-transform:uppercase;
+            letter-spacing:.06em;
+            color:#6b7280;
+            font-weight:600;
+            margin-bottom:6px;
+        }
+
+        .input, textarea{
+            width:90%;
+            padding:8px 10px;
+            border-radius:8px;
+            border:1px solid #d1d5db;
+            font-size:14px;
+            background:#ffffff;
+            outline:none;
+        }
+        textarea{
+            min-height:90px;
+            resize:vertical;
+        }
+        .input:focus, textarea:focus{
+            border-color:#93c5fd;
+            box-shadow: 0 0 0 3px rgba(147,197,253,0.35);
+        }
+
+        .row{
+            display:flex;
+            gap:10px;
+            align-items:center;
+            flex-wrap:wrap;
+            margin-top:14px;
+        }
+
+        .btn-primary{
+            padding:8px 14px;
+            border-radius:9999px;
+            background:#2563eb;
+            color:#ffffff;
+            border:none;
+            cursor:pointer;
+            font-size:14px;
+            font-weight:600;
+            display:inline-flex;
+            align-items:center;
+            gap:8px;
+        }
+        .btn-primary:hover{ background:#1d4ed8; }
+
+        .btn-secondary{
+            padding:8px 14px;
+            border-radius:9999px;
+            background:#ffffff;
+            color:#111827;
+            border:1px solid #d1d5db;
+            cursor:pointer;
+            font-size:14px;
+            font-weight:600;
+            display:inline-flex;
+            align-items:center;
+            gap:8px;
+        }
+        .btn-secondary:hover{ background:#f9fafb; }
+
+        .btn-danger{
+            padding:8px 14px;
+            border-radius:9999px;
+            background:#ffffff;
+            color:#b91c1c;
+            border:1px solid #fecaca;
+            cursor:pointer;
+            font-size:14px;
+            font-weight:600;
+        }
+        .btn-danger:hover{ background:#fff1f2; }
+
+        .inline-error{
+            display:inline-flex;
+            align-items:center;
+            gap:6px;
+            padding:8px 10px;
+            border:1px solid #fecaca;
+            background:#fff1f2;
+            color:#991b1b;
+            border-radius:10px;
+            font-size:13px;
+            line-height:1.2;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="top-nav">
+    <div class="nav-links">
+        <a th:href="@{/products}" class="active">Products</a>
+        <a th:href="@{/orders}">Orders</a>
+        <a th:href="@{/parcels}">Parcels</a>
+    </div>
+</div>
+
+<div class="page">
+
+    <div class="page-title">
+        <div>
+            <h1>Edit product</h1>
+            <div class="sub">
+                ID: <span th:text="${product.id}">0</span>
+                • Current SKU: <span th:text="${product.sku}">—</span>
+            </div>
+            <div style="margin-top:6px;">
+                <a class="link" th:href="@{'/products/' + ${product.id} + '/history'}">Back to history</a>
+            </div>
+        </div>
+    </div>
+
+    <form th:action="@{'/products/' + ${product.id} + '/edit'}"
+          th:object="${product}" method="post">
+
+        <div class="card">
+            <div class="card-header">
+                <p class="card-title">Product details</p>
+            </div>
+
+            <div class="grid">
+                <div class="field">
+                    <label>Name</label>
+                    <input class="input" type="text" th:field="*{name}" required>
+                </div>
+
+                <div class="field">
+                    <label>SKU</label>
+                    <input class="input" type="text" th:field="*{sku}">
+                </div>
+
+                <div class="field">
+                    <label>Category</label>
+                    <input class="input" type="text" th:field="*{category}">
+                </div>
+
+                <div class="field">
+                    <label>Location</label>
+                    <input class="input" type="text" th:field="*{location}">
+                </div>
+
+                <div class="field">
+                    <label>Quantity on hand</label>
+                    <input class="input" type="number" min="0" step="1" th:field="*{quantityOnHand}">
+                </div>
+            </div>
+
+            <div class="field" style="margin-top:12px;">
+                <label>Description</label>
+                <textarea th:field="*{description}"></textarea>
+            </div>
+
+            <div class="row">
+                <button class="btn-primary" type="submit">Save changes</button>
+
+                <a class="btn-secondary"
+                   th:href="@{'/products/' + ${product.id} + '/history'}"
+                   style="text-decoration:none;">
+                    Cancel
+                </a>
+
+                <div th:if="${errorMessage}" class="inline-error">
+                    <strong>Error:</strong> <span th:text="${errorMessage}"></span>
+                </div>
+
+                <button class="btn-danger"
+                        type="submit"
+                        style="margin-left:auto;"
+                        th:formaction="@{'/products/' + ${product.id} + '/delete'}"
+                        formmethod="post"
+                        onclick="return confirm('Are you sure you want to delete this product?');">
+                    Delete
+                </button>
+            </div>
+
+        </div>
+    </form>
+
+</div>
+
+</body>
+</html>

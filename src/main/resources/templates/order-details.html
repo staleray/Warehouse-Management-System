@@ -1,0 +1,437 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Order details</title>
+
+    <style>
+        body{
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            margin: 0;
+            background-color: #f5f7fb;
+            color:#111827;
+        }
+
+        .top-nav{
+            display:flex;
+            align-items:center;
+            justify-content:space-between;
+            padding:16px 32px;
+            background:#ffffff;
+            border-bottom:1px solid #e3e7ef;
+        }
+        .nav-links{ display:flex; gap:24px; }
+        .nav-links a{
+            text-decoration:none;
+            color:#6b7280;
+            font-weight:500;
+            padding-bottom:4px;
+        }
+        .nav-links a.active{
+            color:#111827;
+            border-bottom:2px solid #2563eb;
+        }
+
+        .page{
+            padding:24px 32px;
+            max-width:1200px;
+            margin:0 auto;
+        }
+
+        .page-title{
+            display:flex;
+            align-items:flex-start;
+            justify-content:space-between;
+            gap:16px;
+            margin: 6px 0 16px;
+        }
+        h1{
+            margin:0 0 6px 0;
+            font-size:24px;
+            color:#111827;
+        }
+        .subactions{
+            display:flex;
+            gap:8px;
+            align-items:center;
+            color:#6b7280;
+            font-weight:600;
+            white-space:nowrap;
+        }
+        .link{
+            color:#2563eb;
+            text-decoration:none;
+            font-weight:600;
+            font-size:13px;
+        }
+        .link:hover{ text-decoration:underline; }
+
+        .grid{
+            display:grid;
+            grid-template-columns: 2fr 1fr;
+            gap:16px;
+            align-items:start;
+        }
+        @media (max-width: 980px){
+            .grid{ grid-template-columns:1fr; }
+        }
+
+        .card{
+            background:#ffffff;
+            border-radius:12px;
+            padding:16px 20px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+        }
+        .card + .card{ margin-top:16px; }
+
+        .card-title{
+            font-size:12px;
+            text-transform:uppercase;
+            color:#6b7280;
+            letter-spacing:.08em;
+            margin-bottom:10px;
+            font-weight:700;
+        }
+
+        .kv{
+            display:grid;
+            grid-template-columns: 160px 1fr;
+            gap:10px 12px;
+            margin-top:6px;
+        }
+        .k{ color:#6b7280; font-weight:600; font-size:14px; }
+        .v{ color:#111827; font-weight:600; font-size:14px; }
+
+        .badge{
+            display:inline-flex;
+            padding:3px 10px;
+            border-radius:9999px;
+            font-size:12px;
+            font-weight:600;
+            border:1px solid rgba(0,0,0,0.06);
+            align-items:center;
+            gap:6px;
+        }
+
+        .badge.new{ background:#dbeafe; color:#1d4ed8; }
+        .badge.in-progress{ background:#ffedd5; color:#c2410c; }
+        .badge.shipped{ background:#dcfce7; color:#166534; }
+        .badge.cancelled{ background:#fee2e2; color:#991b1b; }
+
+        .badge.created{ background:#dbeafe; color:#1d4ed8; }
+        .badge.ready{ background:#dbeafe; color:#1d4ed8; }
+        .badge.in-transit{ background:#ffedd5; color:#c2410c; }
+        .badge.delivered{ background:#dcfce7; color:#166534; }
+        .badge.failed{ background:#fee2e2; color:#991b1b; }
+
+        .row{
+            display:flex;
+            gap:10px;
+            align-items:center;
+            flex-wrap:wrap;
+            margin-top:12px;
+        }
+        .select, .input{
+            padding:8px 10px;
+            border-radius:8px;
+            border:1px solid #d1d5db;
+            font-size:14px;
+            background:#ffffff;
+            min-width:220px;
+        }
+        .input{ min-width:260px; }
+
+        .btn-primary{
+            padding:8px 14px;
+            border-radius:9999px;
+            background:#2563eb;
+            color:#ffffff;
+            border:none;
+            cursor:pointer;
+            font-size:14px;
+            font-weight:600;
+        }
+        .btn-primary:hover{ background:#1d4ed8; }
+
+        .btn-secondary{
+            padding:8px 14px;
+            border-radius:9999px;
+            background:#ffffff;
+            color:#111827;
+            border:1px solid #d1d5db;
+            cursor:pointer;
+            font-size:14px;
+            font-weight:600;
+        }
+        .btn-secondary:hover{ background:#f9fafb; }
+
+        .table-wrap{
+            margin-top:10px;
+            overflow:auto;
+            border-top:1px solid #e5e7eb;
+            padding-top:10px;
+        }
+        table{
+            width:100%;
+            border-collapse:collapse;
+            min-width:720px;
+            font-size:14px;
+        }
+        th{
+            text-align:left;
+            color:#6b7280;
+            font-weight:500;
+            border-bottom:1px solid #e5e7eb;
+            font-size:12px;
+            text-transform:uppercase;
+            letter-spacing:.06em;
+            padding:10px 8px;
+            white-space:nowrap;
+        }
+        td{
+            padding:10px 8px;
+            border-bottom:1px solid #f3f4f6;
+            white-space:nowrap;
+            font-weight:500;
+            color:#111827;
+        }
+        tbody tr:nth-child(even){ background:#f9fafb; }
+
+        .muted{ color:#6b7280; font-weight:500; }
+
+        .section-title{
+            margin:14px 0 8px;
+            font-size:16px;
+            font-weight:700;
+            color:#111827;
+        }
+
+        .two-col{
+            display:grid;
+            grid-template-columns: 1fr 1fr;
+            gap:12px;
+        }
+        @media (max-width: 680px){
+            .two-col{ grid-template-columns:1fr; }
+            .input, .select{ min-width:100%; width:100%; }
+            table{ min-width: 560px; }
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="top-nav">
+    <div class="nav-links">
+        <a th:href="@{/products}"
+           th:classappend="${activePage == 'products'} ? ' active' : ''">Products</a>
+
+        <a th:href="@{/orders}" class="active">Orders</a>
+
+        <a th:href="@{/parcels}"
+           th:classappend="${activePage == 'parcels'} ? ' active' : ''">Parcels</a>
+    </div>
+</div>
+
+<div class="page">
+
+    <div class="page-title">
+        <div>
+            <h1>Order details</h1>
+            <a class="link" th:href="@{/orders}">Back to orders</a>
+        </div>
+
+        <div class="subactions">
+            <span>ID:</span>
+            <span th:text="${order.id}">5</span>
+        </div>
+    </div>
+
+    <div class="grid">
+        <div>
+            <div class="card">
+                <div class="card-title">Order</div>
+
+                <div class="kv">
+                    <div class="k">Order number</div>
+                    <div class="v" th:text="${order.orderNumber}">Number2</div>
+
+                    <div class="k">Status</div>
+                    <div class="v">
+                        <span class="badge"
+                              th:if="${order.status != null}"
+                              th:text="${order.status}"
+                              th:classappend="${#strings.toLowerCase(order.status.name()).replace('_','-')}">
+                            NEW
+                        </span>
+                        <span class="badge" th:if="${order.status == null}">—</span>
+                    </div>
+
+                    <div class="k">Notes</div>
+                    <div class="v" th:text="${order.notes}">Test</div>
+                </div>
+
+                <form th:action="@{'/orders/' + ${order.id} + '/status'}" method="post" class="row">
+                    <select class="select" name="status">
+                        <option th:each="s : ${T(com.example.att1.Entity.Enums.OrderStatus).values()}"
+                                th:value="${s}"
+                                th:text="${s}"
+                                th:selected="${s == order.status}">
+                        </option>
+                    </select>
+                    <button class="btn-primary" type="submit">Update status</button>
+                </form>
+            </div>
+
+            <div class="card">
+                <div class="card-title">Items</div>
+
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                        <tr>
+                            <th>Product</th>
+                            <th>SKU</th>
+                            <th>Quantity</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+
+                        <tr th:if="${order.items == null or #lists.isEmpty(order.items)}">
+                            <td colspan="3" class="muted">No items in this order.</td>
+                        </tr>
+
+                        <tr th:each="it : ${order.items}">
+                            <td th:text="${it.product != null ? it.product.name : it.productName}">Penasdsa</td>
+                            <td th:text="${it.product != null ? it.product.sku : it.sku}">asdasd</td>
+                            <td th:text="${it.quantity}">200</td>
+                        </tr>
+
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-title">Parcels</div>
+
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Tracking number</th>
+                            <th>Carrier</th>
+                            <th>Status</th>
+                            <th>Shipped</th>
+                            <th>Delivered</th>
+                            <th>Change status</th>
+                        </tr>
+                        </thead>
+
+                        <tbody>
+
+                        <tr th:if="${order.parcels == null or #lists.isEmpty(order.parcels)}">
+                            <td colspan="7" class="muted">No parcels created for this order.</td>
+                        </tr>
+
+                        <tr th:each="p : ${order.parcels}">
+                            <td th:text="${p.id}">1</td>
+                            <td th:text="${p.trackingNumber}">886841...</td>
+                            <td th:text="${p.carrier}">FedEx</td>
+
+                            <td>
+                                <span class="badge"
+                                      th:if="${p.status != null}"
+                                      th:text="${p.status}"
+                                      th:classappend="${#strings.toLowerCase(p.status.name()).replace('_','-')}">
+                                    CREATED
+                                </span>
+                                <span class="badge" th:if="${p.status == null}">—</span>
+                            </td>
+
+                            <td class="muted" th:text="${p.shippedAt != null ? #temporals.format(p.shippedAt, 'yyyy-MM-dd HH:mm') : '—'}">—</td>
+                            <td class="muted" th:text="${p.deliveredAt != null ? #temporals.format(p.deliveredAt, 'yyyy-MM-dd HH:mm') : '—'}">—</td>
+
+                            <td>
+                                <form th:if="${parcelStatusOptions != null}"
+                                      th:action="@{'/parcels/' + ${p.id} + '/status'}"
+                                      method="post"
+                                      class="row" style="margin-top:0;">
+                                    <select class="select" name="status" style="min-width:180px;">
+                                        <option th:each="ps : ${parcelStatusOptions}"
+                                                th:value="${ps}"
+                                                th:text="${ps}"
+                                                th:selected="${p.status != null and p.status.name() == ps.name()}">
+                                        </option>
+                                    </select>
+                                    <button class="btn-secondary" type="submit">Update</button>
+                                </form>
+
+                                <span th:if="${parcelStatusOptions == null}" class="muted">—</span>
+                            </td>
+                        </tr>
+
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="section-title">Create new parcel for this order</div>
+
+                <form th:action="@{'/orders/' + ${order.id} + '/parcels'}" method="post">
+                    <div class="two-col">
+                        <div>
+                            <div class="muted" style="margin:6px 0 6px;">Tracking number</div>
+                            <input class="input" name="trackingNumber"
+                                   th:value="${newParcel != null ? newParcel.trackingNumber : ''}"
+                                   placeholder="e.g. 886841651420"/>
+                        </div>
+
+                        <div>
+                            <div class="muted" style="margin:6px 0 6px;">Carrier</div>
+                            <input class="input" name="carrier"
+                                   th:value="${newParcel != null ? newParcel.carrier : ''}"
+                                   placeholder="e.g. FedEx"/>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <button class="btn-primary" type="submit">Create parcel</button>
+                    </div>
+                </form>
+            </div>
+
+        </div>
+
+        <div>
+
+            <div class="card">
+                <div class="card-title">Quick info</div>
+
+                <div class="kv" style="grid-template-columns:120px 1fr;">
+                    <div class="k">Created</div>
+                    <div class="v" th:text="${order.createdAt != null ? #temporals.format(order.createdAt, 'yyyy-MM-dd HH:mm') : '—'}">—</div>
+
+                    <div class="k">Updated</div>
+                    <div class="v" th:text="${order.updatedAt != null ? #temporals.format(order.updatedAt, 'yyyy-MM-dd HH:mm') : '—'}">—</div>
+                </div>
+            </div>
+
+            <div class="card" style="margin-top:16px;"
+                 th:if="${order.parcels != null and !#lists.isEmpty(order.parcels)}">
+                <div class="card-title">Recent parcels</div>
+
+                <div th:each="p,iter : ${order.parcels}" th:if="${iter.index < 5}" style="margin:10px 0;">
+                    <div style="font-weight:600;" th:text="${p.trackingNumber}">886841...</div>
+                    <div class="muted" th:text="${p.status}">CREATED</div>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+</div>
+
+</body>
+</html>

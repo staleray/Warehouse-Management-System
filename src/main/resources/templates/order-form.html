@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Create order</title>
+
+    <style>
+        body{
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            margin: 0;
+            background-color: #f5f7fb;
+            color:#111827;
+        }
+
+        .top-nav{
+            display:flex;
+            align-items:center;
+            justify-content:space-between;
+            padding:16px 32px;
+            background:#ffffff;
+            border-bottom:1px solid #e3e7ef;
+        }
+        .nav-links{ display:flex; gap:24px; }
+        .nav-links a{
+            text-decoration:none;
+            color:#6b7280;
+            font-weight:500;
+            padding-bottom:4px;
+        }
+        .nav-links a.active{
+            color:#111827;
+            border-bottom:2px solid #2563eb;
+        }
+
+        .page{
+            padding:24px 32px;
+            max-width:1200px;
+            margin:0 auto;
+        }
+
+        .page-title{
+            margin: 6px 0 16px;
+            display:flex;
+            align-items:flex-start;
+            justify-content:space-between;
+            gap:16px;
+            flex-wrap:wrap;
+        }
+        h1{
+            margin:0 0 6px 0;
+            font-size:24px;
+            color:#111827;
+        }
+        .link{
+            color:#2563eb;
+            text-decoration:none;
+            font-weight:600;
+            font-size:13px;
+        }
+        .link:hover{ text-decoration:underline; }
+
+        .card{
+            background:#ffffff;
+            border-radius:12px;
+            padding:16px 20px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+        }
+        .card + .card{ margin-top:16px; }
+
+        .card-header{
+            display:flex;
+            align-items:center;
+            justify-content:space-between;
+            gap:12px;
+            margin-bottom:10px;
+        }
+        .card-title{
+            font-size:12px;
+            text-transform:uppercase;
+            color:#6b7280;
+            letter-spacing:.08em;
+            font-weight:700;
+            margin:0;
+        }
+
+        .alert{
+            padding:10px 12px;
+            border-radius:10px;
+            border:1px solid #fecaca;
+            background:#fff1f2;
+            color:#991b1b;
+            font-weight:600;
+            font-size:14px;
+            max-width:520px;
+        }
+
+        .form-grid{
+            display:grid;
+            grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+            gap:16px;
+            margin-top:6px;
+        }
+
+        @media (max-width: 860px){
+            .form-grid{ grid-template-columns:1fr; }
+        }
+
+        .field label{
+            display:block;
+            font-size:12px;
+            text-transform:uppercase;
+            letter-spacing:.06em;
+            color:#6b7280;
+            font-weight:600;
+            margin-bottom:6px;
+        }
+
+        .input, .select{
+            width:90%;
+            padding:8px 10px;
+            border-radius:8px;
+            border:1px solid #d1d5db;
+            font-size:14px;
+            background:#ffffff;
+            outline:none;
+        }
+        .input:focus, .select:focus{
+            border-color:#93c5fd;
+            box-shadow: 0 0 0 3px rgba(147,197,253,0.35);
+        }
+
+        .btn-primary{
+            padding:8px 14px;
+            border-radius:9999px;
+            background:#2563eb;
+            color:#ffffff;
+            border:none;
+            cursor:pointer;
+            font-size:14px;
+            font-weight:600;
+            display:inline-flex;
+            align-items:center;
+            gap:8px;
+        }
+        .btn-primary:hover{ background:#1d4ed8; }
+
+        .btn-secondary{
+            padding:8px 14px;
+            border-radius:9999px;
+            background:#ffffff;
+            color:#111827;
+            border:1px solid #d1d5db;
+            cursor:pointer;
+            font-size:14px;
+            font-weight:600;
+            display:inline-flex;
+            align-items:center;
+            gap:8px;
+        }
+        .btn-secondary:hover{ background:#f9fafb; }
+
+        .btn-danger{
+            padding:8px 14px;
+            border-radius:9999px;
+            background:#ffffff;
+            color:#b91c1c;
+            border:1px solid #fecaca;
+            cursor:pointer;
+            font-size:14px;
+            font-weight:600;
+        }
+        .btn-danger:hover{ background:#fff1f2; }
+
+        .table-wrap{
+            margin-top:10px;
+            overflow:auto;
+            border-top:1px solid #e5e7eb;
+            padding-top:10px;
+        }
+        table{
+            width:100%;
+            border-collapse:collapse;
+            min-width:820px;
+            font-size:14px;
+        }
+        th{
+            text-align:left;
+            color:#6b7280;
+            font-weight:500;
+            border-bottom:1px solid #e5e7eb;
+            font-size:12px;
+            text-transform:uppercase;
+            letter-spacing:.06em;
+            padding:10px 8px;
+            white-space:nowrap;
+        }
+        td{
+            padding:10px 8px;
+            border-bottom:1px solid #f3f4f6;
+            white-space:nowrap;
+            vertical-align:middle;
+            font-weight:500;
+        }
+        tbody tr:nth-child(even){ background:#f9fafb; }
+
+        .row{
+            display:flex;
+            gap:10px;
+            align-items:center;
+            flex-wrap:wrap;
+            margin-top:12px;
+        }
+
+        .hidden{ display:none !important; }
+    </style>
+</head>
+
+<body>
+
+<div class="top-nav">
+    <div class="nav-links">
+        <a th:href="@{/products}">Products</a>
+        <a th:href="@{/orders}" class="active">Orders</a>
+        <a th:href="@{/parcels}">Parcels</a>
+    </div>
+</div>
+
+<div class="page">
+
+    <div class="page-title">
+        <div>
+            <h1>Create new order</h1>
+            <a class="link" th:href="@{/orders}">Back to orders</a>
+        </div>
+
+        <div class="alert" th:if="${error != null}" th:text="${error}">
+            Something went wrong.
+        </div>
+    </div>
+
+    <form th:action="@{/orders}" th:object="${orderRequest}" method="post" id="orderForm">
+
+        <div class="card">
+            <div class="card-header">
+                <p class="card-title">Order info</p>
+            </div>
+
+            <div class="form-grid">
+                <div class="field">
+                    <label>Order number (optional)</label>
+                    <input class="input" type="text" th:field="*{orderNumber}" placeholder="S-123"/>
+                </div>
+
+                <div class="field">
+                    <label>Notes</label>
+                    <input class="input" type="text" th:field="*{notes}" placeholder="Any notes for this order"/>
+                </div>
+            </div>
+        </div>
+
+        <div class="card" style="margin-top:16px;">
+            <div class="card-header">
+                <p class="card-title">Items</p>
+                <button class="btn-secondary" type="button" id="addRowBtn">+ Add item</button>
+            </div>
+
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                    <tr>
+                        <th style="width:70%;">Product</th>
+                        <th style="width:20%;">Quantity</th>
+                        <th style="width:10%;">Remove</th>
+                    </tr>
+                    </thead>
+
+                    <tbody id="itemsBody">
+                    <tr class="item-row" th:each="item, iter : *{items}">
+                        <td>
+                            <select class="select product-select"
+                                    th:name="|items[${iter.index}].productId|"
+                                    required>
+                                <option value="">-- select product --</option>
+
+                                <option th:each="p : ${products}"
+                                        th:value="${p.id}"
+                                        th:selected="${item.productId != null and item.productId == p.id}"
+                                        th:disabled="${(p.quantityOnHand == null ? 0 : p.quantityOnHand) <= 0}"
+                                        th:text="${p.name + ' (' + p.sku + ')' + (((p.quantityOnHand == null ? 0 : p.quantityOnHand) <= 0) ? ' — OUT OF STOCK' : ' | in stock: ' + p.quantityOnHand)}">
+                                </option>
+                            </select>
+                        </td>
+
+                        <td>
+                            <input class="input qty-input" type="number"
+                                   min="1" step="1" required
+                                   th:name="|items[${iter.index}].quantity|"
+                                   th:value="${item.quantity}">
+                        </td>
+
+                        <td>
+                            <button class="btn-danger removeRowBtn" type="button">Remove</button>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="row">
+                <button class="btn-primary" type="submit">Create order</button>
+
+                <a class="btn-secondary" th:href="@{/orders}"
+                   style="text-decoration:none;">
+                    Cancel
+                </a>
+            </div>
+        </div>
+
+    </form>
+
+    <div class="hidden">
+        <select id="productSelectTemplate" class="select">
+            <option value="">-- select product --</option>
+            <option th:each="p : ${products}"
+                    th:value="${p.id}"
+                    th:disabled="${(p.quantityOnHand == null ? 0 : p.quantityOnHand) <= 0}"
+                    th:text="${p.name + ' (' + p.sku + ')' + (((p.quantityOnHand == null ? 0 : p.quantityOnHand) <= 0) ? ' — OUT OF STOCK' : ' | in stock: ' + p.quantityOnHand)}">
+            </option>
+        </select>
+    </div>
+
+</div>
+
+<script>
+    (function () {
+        const body = document.getElementById('itemsBody');
+        const addBtn = document.getElementById('addRowBtn');
+        const selectTemplate = document.getElementById('productSelectTemplate');
+
+        function reindexRows() {
+            const rows = body.querySelectorAll('tr.item-row');
+            rows.forEach((row, idx) => {
+                const product = row.querySelector('.product-select');
+                const qty = row.querySelector('.qty-input');
+
+                if (product) product.name = `items[${idx}].productId`;
+                if (qty) qty.name = `items[${idx}].quantity`;
+
+                const removeBtn = row.querySelector('.removeRowBtn');
+                if (removeBtn) {
+                    removeBtn.disabled = (rows.length === 1);
+                    removeBtn.style.opacity = (rows.length === 1) ? '0.5' : '';
+                    removeBtn.style.cursor = (rows.length === 1) ? 'not-allowed' : '';
+                }
+            });
+        }
+
+        function attachRemoveHandlers() {
+            body.querySelectorAll('.removeRowBtn').forEach(btn => {
+                btn.onclick = () => {
+                    const rows = body.querySelectorAll('tr.item-row');
+                    if (rows.length <= 1) return;
+                    btn.closest('tr.item-row')?.remove();
+                    reindexRows();
+                };
+            });
+        }
+
+        function addRow() {
+            const tr = document.createElement('tr');
+            tr.className = 'item-row';
+
+            const tdProduct = document.createElement('td');
+            const clonedSelect = selectTemplate.cloneNode(true);
+            clonedSelect.id = '';
+            clonedSelect.classList.add('product-select');
+            clonedSelect.required = true;
+            clonedSelect.value = '';
+            tdProduct.appendChild(clonedSelect);
+
+            const tdQty = document.createElement('td');
+            const qty = document.createElement('input');
+            qty.type = 'number';
+            qty.min = '1';
+            qty.step = '1';
+            qty.required = true;
+            qty.className = 'input qty-input';
+            tdQty.appendChild(qty);
+
+            const tdRemove = document.createElement('td');
+            const rm = document.createElement('button');
+            rm.type = 'button';
+            rm.className = 'btn-danger removeRowBtn';
+            rm.textContent = 'Remove';
+            tdRemove.appendChild(rm);
+
+            tr.appendChild(tdProduct);
+            tr.appendChild(tdQty);
+            tr.appendChild(tdRemove);
+
+            body.appendChild(tr);
+
+            attachRemoveHandlers();
+            reindexRows();
+        }
+
+        addBtn.addEventListener('click', addRow);
+
+        attachRemoveHandlers();
+        reindexRows();
+    })();
+</script>
+
+</body>
+</html>
