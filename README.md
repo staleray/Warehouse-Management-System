@@ -24,11 +24,3 @@ Java 17, Spring Boot 3.5.7, Spring Data JPA / Hibernate, PostgreSQL, Thymeleaf, 
 - `src/main/resources/templates` - Thymeleaf pages.
 
 Java sources are under `src/main/java/com/example/att1`.
-
-## Build and tests
-
-```powershell
-.\gradlew.bat build
-```
-
-The application context test requires a reachable PostgreSQL database and the environment variables above. This repository is a portfolio project; no application authentication is configured.
